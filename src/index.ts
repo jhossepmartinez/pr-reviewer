@@ -80,14 +80,38 @@ async function run(): Promise<void> {
       return;
     }
 
-    core.info("Posting review comment...");
+    const reviewBody = `## DeepSeek Code Review\n\n${review}\n\n---\n${formatTokenFooter(response.usage)}`;
 
-    await octokit.rest.issues.createComment({
+    core.info("Looking for existing review comment...");
+    const { data: comments } = await octokit.rest.issues.listComments({
       owner,
       repo,
       issue_number: prNumber,
-      body: `## DeepSeek Code Review\n\n${review}\n\n---\n${formatTokenFooter(response.usage)}`,
     });
+
+    const existing = comments.find(
+      (c) =>
+        c.user?.login === "github-actions[bot]" &&
+        (c.body ?? "").startsWith("## DeepSeek Code Review"),
+    );
+
+    if (existing) {
+      core.info(`Updating existing comment #${existing.id}...`);
+      await octokit.rest.issues.updateComment({
+        owner,
+        repo,
+        comment_id: existing.id,
+        body: reviewBody,
+      });
+    } else {
+      core.info("Posting new review comment...");
+      await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: prNumber,
+        body: reviewBody,
+      });
+    }
 
     core.info("Review posted successfully");
   } catch (err) {

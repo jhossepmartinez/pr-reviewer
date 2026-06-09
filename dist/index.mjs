@@ -34805,18 +34805,36 @@ ${diff}`
       core.setFailed("No review content returned from DeepSeek");
       return;
     }
-    core.info("Posting review comment...");
-    await octokit.rest.issues.createComment({
-      owner,
-      repo,
-      issue_number: prNumber,
-      body: `## DeepSeek Code Review
+    const reviewBody = `## DeepSeek Code Review
 
 ${review}
 
 ---
-${formatTokenFooter(response.usage)}`
+${formatTokenFooter(response.usage)}`;
+    core.info("Looking for existing review comment...");
+    const { data: comments } = await octokit.rest.issues.listComments({
+      owner,
+      repo,
+      issue_number: prNumber
     });
+    const existing = comments.find((c2) => c2.user?.login === "github-actions[bot]" && (c2.body ?? "").startsWith("## DeepSeek Code Review"));
+    if (existing) {
+      core.info(`Updating existing comment #${existing.id}...`);
+      await octokit.rest.issues.updateComment({
+        owner,
+        repo,
+        comment_id: existing.id,
+        body: reviewBody
+      });
+    } else {
+      core.info("Posting new review comment...");
+      await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: prNumber,
+        body: reviewBody
+      });
+    }
     core.info("Review posted successfully");
   } catch (err) {
     core.setFailed(err instanceof Error ? err.message : "Unknown error");
