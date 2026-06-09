@@ -1,0 +1,9 @@
+name: "DeepSeek PR Reviewer"
+description: "Reviews pull requests using the DeepSeek API"
+inputs:
+  deepseek_api_key:
+    description: "DeepSeek API key"
+    required: true
+runs:
+  using: "node20"
+  main: "dist/index.mjs"
