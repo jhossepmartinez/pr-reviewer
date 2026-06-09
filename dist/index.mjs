@@ -34738,6 +34738,16 @@ var _deployments_endpoints = new Set([
 var openai_default = OpenAI;
 
 // src/index.ts
+function formatTokenFooter(usage) {
+  const input = usage?.prompt_tokens;
+  const cached = usage?.prompt_tokens_details?.cached_tokens;
+  const output = usage?.completion_tokens;
+  const inStr = input != null ? String(input) : "Error fetching the data";
+  const cachedStr = cached != null ? String(cached) : "Error fetching the data";
+  const uncachedStr = input != null && cached != null ? String(input - cached) : "Error fetching the data";
+  const outStr = output != null ? String(output) : "Error fetching the data";
+  return `**Tokens:** ${inStr} in (${cachedStr} cached · ${uncachedStr} uncached) · ${outStr} out`;
+}
 async function run() {
   try {
     const deepseekApiKey = core.getInput("deepseek_api_key", { required: true });
@@ -34802,7 +34812,10 @@ ${diff}`
       issue_number: prNumber,
       body: `## DeepSeek Code Review
 
-${review}`
+${review}
+
+---
+${formatTokenFooter(response.usage)}`
     });
     core.info("Review posted successfully");
   } catch (err) {

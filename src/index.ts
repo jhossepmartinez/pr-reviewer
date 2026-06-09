@@ -2,6 +2,22 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import OpenAI from "openai";
 
+function formatTokenFooter(usage: any): string {
+  const input = usage?.prompt_tokens;
+  const cached = usage?.prompt_tokens_details?.cached_tokens;
+  const output = usage?.completion_tokens;
+
+  const inStr = input != null ? String(input) : "Error fetching the data";
+  const cachedStr = cached != null ? String(cached) : "Error fetching the data";
+  const uncachedStr =
+    input != null && cached != null
+      ? String(input - cached)
+      : "Error fetching the data";
+  const outStr = output != null ? String(output) : "Error fetching the data";
+
+  return `**Tokens:** ${inStr} in (${cachedStr} cached · ${uncachedStr} uncached) · ${outStr} out`;
+}
+
 async function run(): Promise<void> {
   try {
     const deepseekApiKey = core.getInput("deepseek_api_key", { required: true });
@@ -70,7 +86,7 @@ async function run(): Promise<void> {
       owner,
       repo,
       issue_number: prNumber,
-      body: `## DeepSeek Code Review\n\n${review}`,
+      body: `## DeepSeek Code Review\n\n${review}\n\n---\n${formatTokenFooter(response.usage)}`,
     });
 
     core.info("Review posted successfully");
