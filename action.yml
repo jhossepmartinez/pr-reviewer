@@ -4,6 +4,10 @@ inputs:
   deepseek_api_key:
     description: "DeepSeek API key"
     required: true
+  github_token:
+    description: "GitHub token for posting comments"
+    required: true
+    default: ${{ github.token }}
 runs:
   using: "node20"
   main: "dist/index.mjs"

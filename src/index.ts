@@ -14,7 +14,8 @@ async function run(): Promise<void> {
       return;
     }
 
-    const octokit = github.getOctokit(process.env.GITHUB_TOKEN!);
+    const ghToken = core.getInput("github_token", { required: true });
+    const octokit = github.getOctokit(ghToken);
     core.info(`Fetching diff for PR #${prNumber} in ${owner}/${repo}`);
 
     const { data: files } = await octokit.rest.pulls.listFiles({
