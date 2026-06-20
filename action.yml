@@ -1,8 +1,8 @@
-name: "DeepSeek PR Reviewer"
-description: "Reviews pull requests using the DeepSeek API"
+name: "OpenCode PR Reviewer"
+description: "Reviews pull requests using the OpenCode API"
 inputs:
-  deepseek_api_key:
-    description: "DeepSeek API key"
+  opencode_api_key:
+    description: "OpenCode API key"
     required: true
   github_token:
     description: "GitHub token for posting comments"

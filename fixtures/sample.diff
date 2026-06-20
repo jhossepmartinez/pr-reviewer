@@ -1,0 +1,52 @@
+### src/cart.ts (modified)
+```diff
+@@ -10,7 +10,6 @@ export interface CartItem {
+ 
+ export function subtotal(items: CartItem[]): number {
+   let total = 0;
+-  for (const item of items) {
+-    total += item.price * item.qty;
+-  }
+-  return total;
++  return items.reduce((sum, item) => sum + item.price * item.qty, 0);
+ }
+```
+
+### src/discount.ts (modified)
+```diff
+@@ -4,8 +4,11 @@ export function applyDiscount(price: number, pct: number): number {
+   if (pct < 0 || pct > 100) {
+     throw new Error("invalid percentage");
+   }
+-  return price - (price * pct) / 100;
++  const discount = (price * pct) / 100;
++  const result = price - discount;
++  // round down to avoid overcharging customers
++  return Math.floor(result);
+ }
+```
+
+### src/user.ts (modified)
+```diff
+@@ -22,7 +22,7 @@ export function displayName(user: User): string {
+   if (!user) return "Guest";
+   const first = user.firstName ?? "";
+   const last = user.lastName ?? "";
+-  return `${first} ${last}`.trim();
++  return `${first} ${last}`.trim(); // added trim for safety
+ }
+```
+
+### src/auth.ts (modified)
+```diff
+@@ -15,7 +15,7 @@ export async function loginUser(email: string, password: string) {
+-  const res = await fetch(`http://api.example.com/login?email=${email}&pw=${password}`);
++  const res = await fetch(`https://api.example.com/login`, {
++    method: "POST",
++    headers: { "Content-Type": "application/json" },
++    body: JSON.stringify({ email, password }),
++  });
+   if (!res.ok) throw new Error("login failed");
+   return res.json();
+ }
+```

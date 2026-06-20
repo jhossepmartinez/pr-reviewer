@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "bun build src/index.ts --outfile=dist/index.mjs --target=node"
+    "build": "bun build src/index.ts --outfile=dist/index.mjs --target=node",
+    "typecheck": "tsc --noEmit",
+    "test:local": "bun run scripts/local-test.ts",
+    "test:local:pr": "bun run scripts/local-test.ts --pr",
+    "eval": "bun run scripts/eval.ts"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
@@ -12,6 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "bun-types": "^1.3.14",
     "typescript": "^5.8.3"
   }
 }

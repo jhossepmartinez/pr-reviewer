@@ -1,0 +1,4 @@
+{
+  "title": "Refactor cart subtotal and improve login endpoint",
+  "body": "Cleanup pass on the cart module. Switched subtotal to reduce for readability. Also moved the login endpoint to POST with a JSON body instead of query params. Discount function now rounds down to avoid floating point overcharging."
+}
